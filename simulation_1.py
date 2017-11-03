@@ -47,9 +47,7 @@ if __name__ == '__main__':
     
     
     #create some send events    
-    for i in range(3):
-        client.udt_send(2, 'Sample data %d %s' % (i, str.join('', [random.choice(string.ascii_letters) for i in range(80)])))
-    
+    client.udt_send(2, '%s' % (str.join('', [random.choice(string.ascii_letters) for i in range(80)])))
     
     #give the network sufficient time to transfer all packets before quitting
     sleep(simulation_time)

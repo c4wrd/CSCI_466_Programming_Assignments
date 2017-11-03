@@ -31,22 +31,31 @@ class Link:
     ## called when printing the object
     def __str__(self):
         return 'Link %s-%d to %s-%d' % (self.from_node, self.from_intf_num, self.to_node, self.to_intf_num)
-        
+
+    def get_packet_segments(self, pkt_s):
+        remaining_bytes = [char for char in pkt_s]
+        while len(remaining_bytes) > 0:
+            chunk_length = min(len(remaining_bytes), self.out_intf.mtu)
+            next_chunk = remaining_bytes[0:chunk_length]
+            remaining_bytes = remaining_bytes[chunk_length:]
+            yield str.join('', next_chunk)
+
     ##transmit a packet from the 'from' to the 'to' interface
     def tx_pkt(self):
         pkt_S = self.in_intf.get()
         if pkt_S is None:
             return #return if no packet to transfer
-        if len(pkt_S) > self.out_intf.mtu:
-            print('%s: packet "%s" length greater then link mtu (%d)' % (self, pkt_S, self.out_intf.mtu))
-            return #return without transmitting if packet too big
-        #otherwise transmit the packet
-        try:
-            self.out_intf.put(pkt_S)
-            print('%s: transmitting packet "%s"' % (self, pkt_S))
-        except queue.Full:
-            print('%s: packet lost' % (self))
-            pass
+        for segment in self.get_packet_segments(pkt_S):
+            if len(segment) > self.out_intf.mtu:
+                print('%s: packet "%s" length greater then link mtu (%d)' % (self, segment, self.out_intf.mtu))
+                return #return without transmitting if packet too big
+            #otherwise transmit the packet
+            try:
+                self.out_intf.put(segment)
+                print('%s: transmitting packet "%s"' % (self, segment))
+            except queue.Full:
+                print('%s: packet lost' % (self))
+                pass
         
         
 ## An abstraction of the link layer

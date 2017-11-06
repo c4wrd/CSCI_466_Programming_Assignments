@@ -3,8 +3,10 @@ Created on Oct 12, 2016
 
 @author: mwitt_000
 '''
-import network
-import link
+import network_2 as network
+import link_2 as link
+import random
+import string
 import threading
 from time import sleep
 
@@ -29,7 +31,7 @@ if __name__ == '__main__':
     
     #add all the links
     link_layer.add_link(link.Link(client, 0, router_a, 0, 50))
-    link_layer.add_link(link.Link(router_a, 0, server, 0, 50))
+    link_layer.add_link(link.Link(router_a, 0, server, 0, 30))
     
     
     #start all the objects
@@ -44,9 +46,8 @@ if __name__ == '__main__':
         t.start()
     
     
-    #create some send events    
-    for i in range(3):
-        client.udt_send(2, 'Sample data %d' % i)
+    #create some send events
+    client.udt_send(1, 2, 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')
     
     
     #give the network sufficient time to transfer all packets before quitting
